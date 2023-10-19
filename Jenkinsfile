@@ -2,10 +2,11 @@ pipeline {
     agent any
 
     environment {
-        REACT_IMAGE_TAG = "react-${env.BUILD_ID}"
-        NODE_IMAGE_TAG = "node-${env.BUILD_ID}"
+        REACT_IMAGE_TAG = "${env.BUILD_ID}"
+        NODE_IMAGE_TAG = "${env.BUILD_ID}"
         DOCKER_REGISTRY_URL = 'https://7tiuxysa.c1.gra9.container-registry.ovh.net'
         DOCKER_PROJECT_NAME = 'mydemoproject'
+        BRANCH_NAME = "${env.BRANCH_NAME}"
     }
 
     stages {
@@ -14,10 +15,10 @@ pipeline {
                 dir('react') {
                     script {
                         echo "DOCKER_REGISTRY_URL: ${DOCKER_REGISTRY_URL}"
-                        def reactImageTag = "${DOCKER_PROJECT_NAME}/frontend:${REACT_IMAGE_TAG}"
+                        def reactImageTag = "${DOCKER_PROJECT_NAME}/frontend:${REACT_IMAGE_TAG}-${BRANCH_NAME}"
                         docker.build(reactImageTag, "-f Dockerfile .")
                         docker.withRegistry('https://7tiuxysa.c1.gra9.container-registry.ovh.net', 'ovh-registry-credentials') {
-                            docker.push(reactImageTag)
+                            docker.image(reactImageTag).push()
                         }
                     }
                 }
@@ -29,10 +30,10 @@ pipeline {
                 dir('node') {
                     script {
                         echo "DOCKER_REGISTRY_URL: ${DOCKER_REGISTRY_URL}"
-                        def nodeImageTag = "${DOCKER_PROJECT_NAME}/backend:${NODE_IMAGE_TAG}"
+                        def nodeImageTag = "${DOCKER_PROJECT_NAME}/backend:${NODE_IMAGE_TAG}-${BRANCH_NAME}"
                         docker.build(nodeImageTag, "-f Dockerfile .")
                         docker.withRegistry("${DOCKER_REGISTRY_URL}", 'ovh-registry-credentials') {
-                            docker.push(nodeImageTag)
+                            docker.image(nodeImageTag).push()
                         }
                     }
                 }
@@ -40,6 +41,7 @@ pipeline {
         }
     }
 }
+
 
 
 
