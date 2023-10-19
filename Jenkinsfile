@@ -14,6 +14,7 @@ pipeline {
             steps {
                 dir('react') {
                     script {
+                        echo "DOCKER_REGISTRY_URL: ${DOCKER_REGISTRY_URL}"
                         def reactImageTag = "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAME}/frontend:${REACT_IMAGE_TAG}"
                         docker.build(reactImageTag, "-f Dockerfile .")
                         docker.withRegistry("${DOCKER_REGISTRY_URL}", 'ovh-registry-credentials') {
@@ -28,6 +29,7 @@ pipeline {
             steps {
                 dir('node') {
                     script {
+                        echo "DOCKER_REGISTRY_URL: ${DOCKER_REGISTRY_URL}"
                         def nodeImageTag = "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAME}/backend:${NODE_IMAGE_TAG}"
                         docker.build(nodeImageTag, "-f Dockerfile .")
                         docker.withRegistry("${DOCKER_REGISTRY_URL}", 'ovh-registry-credentials') {
