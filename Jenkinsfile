@@ -17,7 +17,7 @@ pipeline {
                         def reactImageTag = "${DOCKER_PROJECT_NAME}/frontend:${REACT_IMAGE_TAG}"
                         docker.build(reactImageTag, "-f Dockerfile .")
                         docker.withRegistry('https://7tiuxysa.c1.gra9.container-registry.ovh.net', 'ovh-registry-credentials') {
-                            docker.push(reactImageTag)
+                            docker.image(reactImageTag).push()
                         }
                     }
                 }
@@ -32,7 +32,7 @@ pipeline {
                         def nodeImageTag = "${DOCKER_PROJECT_NAME}/backend:${NODE_IMAGE_TAG}"
                         docker.build(nodeImageTag, "-f Dockerfile .")
                         docker.withRegistry("${DOCKER_REGISTRY_URL}", 'ovh-registry-credentials') {
-                            docker.push(nodeImageTag)
+                            docker.image(nodeImageTag).push()
                         }
                     }
                 }
