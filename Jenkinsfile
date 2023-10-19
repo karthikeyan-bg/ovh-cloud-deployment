@@ -17,7 +17,7 @@ pipeline {
                         echo "DOCKER_REGISTRY_URL: ${DOCKER_REGISTRY_URL}"
                         def reactImageTag = "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAME}/frontend:${REACT_IMAGE_TAG}"
                         docker.build(reactImageTag, "-f Dockerfile .")
-                        docker.withRegistry('https://7tiuxysa.c1.gra9.container-registry.ovh.net', 'UcfvXPtlbX', 'x93752H0jS4f618s') {
+                        docker.withRegistry('7tiuxysa.c1.gra9.container-registry.ovh.net', 'UcfvXPtlbX', 'x93752H0jS4f618s') {
                             docker.push(reactImageTag)
                         }
                     }
