@@ -5,6 +5,7 @@ pipeline {
         REACT_IMAGE_TAG = "react-${env.BUILD_ID}"
         NODE_IMAGE_TAG = "node-${env.BUILD_ID}"
         DOCKER_REGISTRY_URL = '7tiuxysa.c1.gra9.container-registry.ovh.net'
+        // DOCKER_REGISTRY_URL = 'https://7tiuxysa.c1.gra9.container-registry.ovh.net'
         DOCKER_PROJECT_NAME = 'mydemoproject'
     }
 
