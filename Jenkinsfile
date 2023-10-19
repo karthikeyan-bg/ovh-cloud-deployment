@@ -19,6 +19,9 @@ pipeline {
                         // Build the Docker image
                         def reactImage = docker.build(reactImageTag, "-f Dockerfile .")
                         
+                        // Tag the Docker image correctly
+                        reactImage.tag("${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAME}/frontend:latest")
+                        
                         // Push the Docker image to the registry
                         reactImage.push()
                     }
@@ -36,6 +39,9 @@ pipeline {
                         // Build the Docker image
                         def nodeImage = docker.build(nodeImageTag, "-f Dockerfile .")
                         
+                        // Tag the Docker image correctly
+                        nodeImage.tag("${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAME}/backend:latest")
+                        
                         // Push the Docker image to the registry
                         nodeImage.push()
                     }
@@ -44,6 +50,7 @@ pipeline {
         }
     }
 }
+
 
 
 
