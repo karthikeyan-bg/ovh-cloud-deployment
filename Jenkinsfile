@@ -4,6 +4,7 @@ pipeline {
     environment {
         REACT_IMAGE_TAG = "react-${env.BUILD_ID}"
         NODE_IMAGE_TAG = "node-${env.BUILD_ID}"
+        DOCKER_REGISTRY_URL = 'https://7tiuxysa.c1.gra9.container-registry.ovh.net'
     }
 
     stages {
@@ -11,9 +12,9 @@ pipeline {
             steps {
                 dir('react') {
                     script {
-                        docker.build("7tiuxysa.c1.gra9.container-registry.ovh.net/mydemoproject/frontend:${REACT_IMAGE_TAG}", "-f Dockerfile .")
-                        docker.withRegistry('7tiuxysa.c1.gra9.container-registry.ovh.net', 'ovh-registry-credentials') {
-                            docker.push("7tiuxysa.c1.gra9.container-registry.ovh.net/mydemoproject/frontend:${REACT_IMAGE_TAG}")
+                        docker.build("${DOCKER_REGISTRY_URL}/mydemoproject/frontend:${REACT_IMAGE_TAG}", "-f Dockerfile .")
+                        docker.withRegistry("${DOCKER_REGISTRY_URL}", 'ovh-registry-credentials') {
+                            docker.push("${DOCKER_REGISTRY_URL}/mydemoproject/frontend:${REACT_IMAGE_TAG}")
                         }
                     }
                 }
@@ -24,9 +25,9 @@ pipeline {
             steps {
                 dir('node') {
                     script {
-                        docker.build("7tiuxysa.c1.gra9.container-registry.ovh.net/mydemoproject/backend:${NODE_IMAGE_TAG}", "-f Dockerfile .")
-                        docker.withRegistry('7tiuxysa.c1.gra9.container-registry.ovh.net', 'ovh-registry-credentials') {
-                            docker.push("7tiuxysa.c1.gra9.container-registry.ovh.net/mydemoproject/backend:${NODE_IMAGE_TAG}")
+                        docker.build("${DOCKER_REGISTRY_URL}/mydemoproject/backend:${NODE_IMAGE_TAG}", "-f Dockerfile .")
+                        docker.withRegistry("${DOCKER_REGISTRY_URL}", 'ovh-registry-credentials') {
+                            docker.push("${DOCKER_REGISTRY_URL}/mydemoproject/backend:${NODE_IMAGE_TAG}")
                         }
                     }
                 }
@@ -34,3 +35,4 @@ pipeline {
         }
     }
 }
+
