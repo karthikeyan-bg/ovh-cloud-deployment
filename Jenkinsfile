@@ -138,15 +138,16 @@ def getAvailableTags(imageType) {
     def availableTags = []
     try {
         def apiUrl = "${registryUrl}${imageName}/tags/list"
-        def response = sh(script: "curl -s ${apiUrl}", returnStdout: true).trim()
-        def json = readJSON text: response
-        availableTags = json.tags ?: []
+        availableTags = script { sh(script: "curl -s ${apiUrl}", returnStdout: true).trim() }
+        availableTags = readJSON text: availableTags
+        availableTags = availableTags.tags ?: []
     } catch (Exception e) {
         echo "Error fetching tags: ${e.message}"
     }
 
     return availableTags
 }
+
 
 
 
