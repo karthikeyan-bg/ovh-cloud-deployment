@@ -69,6 +69,7 @@
 
 
 
+
 pipeline {
     agent any
 
@@ -138,7 +139,7 @@ def getAvailableTags(imageType) {
     def availableTags = []
     try {
         def apiUrl = "${registryUrl}${imageName}/tags/list"
-        availableTags = script { sh(script: "curl -s ${apiUrl}", returnStdout: true).trim() }
+        availableTags = node { sh(script: "curl -s ${apiUrl}", returnStdout: true).trim() }
         availableTags = readJSON text: availableTags
         availableTags = availableTags.tags ?: []
     } catch (Exception e) {
@@ -147,6 +148,7 @@ def getAvailableTags(imageType) {
 
     return availableTags
 }
+
 
 
 
