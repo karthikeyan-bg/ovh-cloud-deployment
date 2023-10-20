@@ -74,19 +74,33 @@ pipeline {
 
     parameters {
         choice(
-            name: 'DEPLOY_IMAGE',
-            choices: ['frontend', 'backend'],
-            description: 'Select the image to deploy'
+            name: 'DEPLOY_REACT_IMAGE',
+            choices: getAvailableTags('frontend'),
+            description: 'Select the React image to deploy'
+        )
+        choice(
+            name: 'DEPLOY_NODE_IMAGE',
+            choices: getAvailableTags('backend'),
+            description: 'Select the Node.js image to deploy'
         )
     }
 
-    environment {
-        DOCKER_REGISTRY_URL = 'https://7tiuxysa.c1.gra9.container-registry.ovh.net'
-        DOCKER_PROJECT_NAME = 'mydemoproject'
-    }
-
     stages {
-        stage('Build and Push Image') {
+        stage('Prepare an environment for the run') {
+            steps {
+                script {
+                    // Get available tags dynamically for React
+                    def availableReactTags = getAvailableTags('frontend')
+                    echo "Available Tags for React: ${availableReactTags}"
+
+                    // Get available tags dynamically for Node.js
+                    def availableNodeTags = getAvailableTags('backend')
+                    echo "Available Tags for Node.js: ${availableNodeTags}"
+                }
+            }
+        }
+
+        stage('Build and Push React Image') {
             when {
                 expression {
                     return (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop')
@@ -94,27 +108,46 @@ pipeline {
             }
             steps {
                 script {
-                    echo "DOCKER_REGISTRY_URL: ${DOCKER_REGISTRY_URL}"
-                    
-                    // Print debugging information
-                    echo "BRANCH_NAME: ${env.BRANCH_NAME}"
-                    echo "BUILD_ID: ${env.BUILD_ID}"
-                    echo "Selected Image: ${params.DEPLOY_IMAGE}"
-                    
-                    // Constructing the Docker image tag
-                    def imageTag = "${DOCKER_PROJECT_NAME}/${params.DEPLOY_IMAGE}:${env.BRANCH_NAME}-${env.BUILD_ID}"
-                    echo "Constructed Image Tag: ${imageTag}"
-                    
-                    // Build and push the Docker image
-                    docker.build(imageTag, "-f ${params.DEPLOY_IMAGE}/Dockerfile .")
-                    docker.withRegistry("${DOCKER_REGISTRY_URL}", 'ovh-registry-credentials') {
-                        docker.image(imageTag).push()
-                    }
+                    echo "Selected React Image: ${params.DEPLOY_REACT_IMAGE}"
+                    // ... rest of your script for React image
+                }
+            }
+        }
+
+        stage('Build and Push Node.js Image') {
+            when {
+                expression {
+                    return (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop')
+                }
+            }
+            steps {
+                script {
+                    echo "Selected Node.js Image: ${params.DEPLOY_NODE_IMAGE}"
+                    // ... rest of your script for Node.js image
                 }
             }
         }
     }
 }
+
+def getAvailableTags(imageType) {
+    // Use Docker Registry API to get image tags
+    def registryUrl = 'https://7tiuxysa.c1.gra9.container-registry.ovh.net/v2/'
+    def imageName = 'mydemoproject/' + (imageType == 'frontend' ? 'frontend' : 'backend')
+
+    def availableTags = []
+    try {
+        def apiUrl = "${registryUrl}${imageName}/tags/list"
+        def response = sh(script: "curl -s ${apiUrl}", returnStdout: true).trim()
+        def json = readJSON text: response
+        availableTags = json.tags ?: []
+    } catch (Exception e) {
+        echo "Error fetching tags: ${e.message}"
+    }
+
+    return availableTags
+}
+
 
 
 
