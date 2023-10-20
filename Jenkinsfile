@@ -51,8 +51,30 @@ pipeline {
                 }
             }
         }
+
+        stage('Select Image to Deploy') {
+            when {
+                expression {
+                    return (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop')
+                }
+            }
+            steps {
+                script {
+                    def userInput = input(
+                        message: 'Which image do you want to deploy?',
+                        parameters: [
+                            choice(name: 'DEPLOY_IMAGE', choices: ['React', 'Node.js'], description: 'Select image to deploy')
+                        ]
+                    )
+
+                    echo "User selected to deploy: ${userInput.DEPLOY_IMAGE}"
+                    echo "Deploying ${userInput.DEPLOY_IMAGE}..."
+                }
+            }
+        }
     }
 }
+
 
 
 
