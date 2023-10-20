@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    parameters {
-        string(name: 'REACT_IMAGE_TAG', defaultValue: '', description: 'Enter React image tag')
-        string(name: 'NODE_IMAGE_TAG', defaultValue: '', description: 'Enter Node.js image tag')
-    }
-
     environment {
         DOCKER_REGISTRY_URL = 'https://7tiuxysa.c1.gra9.container-registry.ovh.net'
         DOCKER_PROJECT_NAME = 'mydemoproject'
@@ -22,7 +17,16 @@ pipeline {
                 dir('react') {
                     script {
                         echo "DOCKER_REGISTRY_URL: ${DOCKER_REGISTRY_URL}"
-                        def reactImageTag = "${DOCKER_PROJECT_NAME}/frontend:${REACT_IMAGE_TAG}-${env.BRANCH_NAME}-${env.BUILD_ID}"
+                        
+                        // Print debugging information
+                        echo "BRANCH_NAME: ${env.BRANCH_NAME}"
+                        echo "BUILD_ID: ${env.BUILD_ID}"
+                        
+                        // Constructing the Docker image tag
+                        def reactImageTag = "${DOCKER_PROJECT_NAME}/frontend:${env.BRANCH_NAME}-${env.BUILD_ID}"
+                        echo "Constructed React Image Tag: ${reactImageTag}"
+                        
+                        // Build and push the Docker image
                         docker.build(reactImageTag, "-f Dockerfile .")
                         docker.withRegistry('https://7tiuxysa.c1.gra9.container-registry.ovh.net', 'ovh-registry-credentials') {
                             docker.image(reactImageTag).push()
@@ -42,7 +46,16 @@ pipeline {
                 dir('node') {
                     script {
                         echo "DOCKER_REGISTRY_URL: ${DOCKER_REGISTRY_URL}"
-                        def nodeImageTag = "${DOCKER_PROJECT_NAME}/backend:${NODE_IMAGE_TAG}-${env.BRANCH_NAME}-${env.BUILD_ID}"
+                        
+                        // Print debugging information
+                        echo "BRANCH_NAME: ${env.BRANCH_NAME}"
+                        echo "BUILD_ID: ${env.BUILD_ID}"
+                        
+                        // Constructing the Docker image tag
+                        def nodeImageTag = "${DOCKER_PROJECT_NAME}/backend:${env.BRANCH_NAME}-${env.BUILD_ID}"
+                        echo "Constructed Node.js Image Tag: ${nodeImageTag}"
+                        
+                        // Build and push the Docker image
                         docker.build(nodeImageTag, "-f Dockerfile .")
                         docker.withRegistry("${DOCKER_REGISTRY_URL}", 'ovh-registry-credentials') {
                             docker.image(nodeImageTag).push()
@@ -51,40 +64,8 @@ pipeline {
                 }
             }
         }
-
-        stage('Select Image to Deploy') {
-            when {
-                expression {
-                    return (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop')
-                }
-            }
-            steps {
-                script {
-                    def userInput = input(
-                        message: 'Which image do you want to deploy?',
-                        parameters: [
-                            choice(name: 'DEPLOY_IMAGE', choices: ['React', 'Node.js'], description: 'Select image to deploy')
-                        ]
-                    )
-
-                    echo "User selected to deploy: ${userInput.DEPLOY_IMAGE}"
-                    echo "Deploying ${userInput.DEPLOY_IMAGE}..."
-                }
-            }
-        }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
